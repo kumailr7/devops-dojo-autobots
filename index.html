@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Devops-Dojo AutoBots</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;900&family=Barlow+Condensed:wght@300;400;500;600;700;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #FFC000;
+      --gold-dark: #917300;
+      --gold-text: #FFCE3E;
+      --black: #000000;
+      --charcoal: #202020;
+      --iron: #181818;
+      --white: #FFFFFF;
+      --ash: #7D7D7D;
+      --smoke: #F5F5F5;
+      --cyan: #29ABE2;
+      --font-display: 'Barlow Condensed', sans-serif;
+      --font-body: 'Barlow', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .nav-logo span { color: var(--white); }
+
+    .nav-right {
+      display: flex;
+      gap: 32px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ash);
+    }
+
+    .nav-right a {
+      color: var(--ash);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-right a:hover { color: var(--gold); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,192,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,192,0,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,192,0,0.12) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(255,192,0,0.3);
+      padding: 6px 20px;
+      margin-bottom: 32px;
+      display: inline-block;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 10vw, 9rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.9;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .hero-title .accent { color: var(--gold); }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 3vw, 2.2rem);
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 48px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 64px;
+      margin-top: 16px;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-top: 6px;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--ash);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 96px 48px; }
+
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.95;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .section-desc {
+      font-family: var(--font-body);
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: var(--ash);
+      max-width: 600px;
+    }
+
+    /* ── WORKFLOW ── */
+    .workflow-section {
+      background: var(--iron);
+    }
+
+    .workflow-header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+
+    .workflow-header .section-desc {
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Top linear row: Bumblebee → JIRA → Optimus Prime */
+    .workflow-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 0;
+    }
+
+    .workflow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .workflow-hex {
+      width: 88px;
+      height: 100px;
+      background: var(--charcoal);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      transition: transform 0.3s;
+      cursor: default;
+    }
+
+    .workflow-hex.gold { background: var(--gold); }
+    .workflow-hex:hover { transform: scale(1.1); }
+
+    /* JIRA box (middle step) */
+    .workflow-jira {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .workflow-jira-box {
+      background: #0052CC;
+      padding: 14px 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.3s;
+      cursor: default;
+    }
+
+    .workflow-jira-box:hover { transform: scale(1.05); }
+
+    .workflow-jira-icon { font-size: 1.6rem; }
+
+    .workflow-name {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-align: center;
+    }
+
+    .workflow-name-sub {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      margin-top: -6px;
+    }
+
+    /* horizontal arrow between top nodes */
+    .wf-arrow-h {
+      width: 56px;
+      height: 2px;
+      background: linear-gradient(to right, var(--gold), rgba(255,192,0,0.4));
+      position: relative;
+      flex-shrink: 0;
+      align-self: center;
+      margin-bottom: 44px;
+    }
+
+    .wf-arrow-h::after {
+      content: '';
+      position: absolute;
+      right: -7px;
+      top: -4px;
+      border-left: 9px solid var(--gold);
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    /* vertical connector from Optimus Prime downward */
+    .workflow-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .wf-line-v {
+      width: 2px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--gold), rgba(255,192,0,0.4));
+    }
+
+    .wf-label-route {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--iron);
+      padding: 4px 10px;
+      border: 1px solid rgba(255,192,0,0.3);
+      white-space: nowrap;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* Bottom row: 4 specialist agents */
+    .workflow-bottom {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+      max-width: 1100px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    /* horizontal bar spanning bottom agents */
+    .wf-h-bar {
+      position: absolute;
+      top: 0;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+      background: rgba(255,192,0,0.35);
+    }
+
+    .workflow-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      padding-top: 0;
+    }
+
+    .wf-branch-line {
+      width: 2px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,192,0,0.4), rgba(255,192,0,0.15));
+      flex-shrink: 0;
+    }
+
+    .wf-branch-label {
+      font-family: var(--font-display);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-align: center;
+      margin-top: 10px;
+      padding: 0 8px;
+      line-height: 1.5;
+    }
+
+    /* ── AGENTS GRID ── */
+    .agents-section { background: var(--black); }
+
+    .agents-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .agents-header .section-desc { margin: 0 auto; text-align: center; }
+
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 2px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .agent-card {
+      background: var(--charcoal);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      cursor: default;
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 0;
+      background: var(--gold);
+      transition: height 0.4s ease;
+    }
+
+    .agent-card:hover { background: #282828; }
+    .agent-card:hover::before { height: 100%; }
+
+    .agent-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .agent-card-number {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ash);
+      line-height: 1.4;
+    }
+
+    .agent-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .agent-name {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .agent-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .agent-desc {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--ash);
+      margin-bottom: 28px;
+    }
+
+    .agent-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+
+    .tag {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ash);
+      border: 1px solid #333;
+      padding: 5px 12px;
+    }
+
+    .agent-tools {
+      border-top: 1px solid #333;
+      padding-top: 20px;
+    }
+
+    .agent-tools-label {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-bottom: 10px;
+    }
+
+    .agent-tools-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tool-chip {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--white);
+      background: rgba(255,192,0,0.08);
+      border: 1px solid rgba(255,192,0,0.2);
+      padding: 5px 12px;
+      transition: background 0.2s;
+    }
+
+    .tool-chip:hover {
+      background: rgba(255,192,0,0.18);
+    }
+
+    .agent-sla {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(255,192,0,0.08);
+      border: 1px solid rgba(255,192,0,0.2);
+      padding: 5px 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    /* ── GUARDRAILS ── */
+    .guardrails-section {
+      background: var(--iron);
+      text-align: center;
+    }
+
+    .guardrails-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 2px;
+      max-width: 1000px;
+      margin: 64px auto 0;
+    }
+
+    .guardrail-card {
+      background: var(--charcoal);
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .guardrail-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .guardrail-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .guardrail-desc {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--ash);
+    }
+
+    /* ── ROUTING TABLE ── */
+    .routing-section { background: var(--black); }
+
+    .routing-table {
+      width: 100%;
+      max-width: 900px;
+      margin: 64px auto 0;
+      border-collapse: collapse;
+    }
+
+    .routing-table th {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: left;
+      padding: 18px 28px;
+      border-bottom: 2px solid var(--charcoal);
+    }
+
+    .routing-table td {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      color: var(--ash);
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--charcoal);
+      vertical-align: top;
+    }
+
+    .routing-table tr:hover td { background: var(--charcoal); }
+
+    .routing-agent {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .routing-agent-emoji { font-size: 1.2rem; }
+
+    .routing-agent-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .routing-model {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(255,192,0,0.08);
+      border: 1px solid rgba(255,192,0,0.2);
+      padding: 5px 12px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .routing-model-provider {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ash);
+      margin-top: 4px;
+    }
+
+    .context-switch-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      margin-top: 40px;
+      padding: 28px 32px;
+      background: var(--charcoal);
+      border-left: 3px solid var(--gold);
+    }
+
+    .context-switch-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .context-switch-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .context-switch-desc {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--ash);
+    }
+
+    /* ── TRIGGER SECTION ── */
+    .trigger-section {
+      background: var(--iron);
+      text-align: center;
+      padding: 80px 48px;
+    }
+
+    .trigger-section .section-title { margin-bottom: 48px; }
+
+    .triggers-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .trigger-pill {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--gold);
+      padding: 14px 28px;
+      cursor: default;
+      transition: background 0.2s;
+    }
+
+    .trigger-pill:hover { background: var(--gold-dark); color: var(--white); }
+
+    .trigger-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .trigger-ghost:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--charcoal);
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .footer-brand span { color: var(--ash); }
+
+    .footer-copy {
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--ash);
+      letter-spacing: 0.05em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── DIVIDER ── */
+    .gold-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      section { padding: 64px 24px; }
+      .hero-stats { gap: 32px; }
+      .workflow-arrow { width: 30px; }
+      footer { flex-direction: column; text-align: center; }
+      .nav-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Devops-Dojo <span>AutoBots</span></div>
+    <div class="nav-right">
+      <a href="#agents">Agents</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#routing">Routing</a>
+      <a href="#guardrails">Guardrails</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-badge">Agentic AI Team &mdash; DevOps &amp; Infrastructure</div>
+
+    <h1 class="hero-title">
+      Devops-Dojo<br><span class="accent">AutoBots</span>
+    </h1>
+    <p class="hero-subtitle">Autonomous &bull; Precise &bull; Unstoppable</p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">6</div>
+        <div class="hero-stat-label">Elite Agents</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">24/7</div>
+        <div class="hero-stat-label">Always On</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">5m</div>
+        <div class="hero-stat-label">P0 Response</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">0</div>
+        <div class="hero-stat-label">Silent Actions</div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">Scroll</div>
+  </div>
+
+  <div class="gold-line"></div>
+
+  <!-- WORKFLOW -->
+  <section class="workflow-section" id="workflow">
+    <div class="workflow-header">
+      <div class="section-label">Operational Flow</div>
+      <h2 class="section-title">How the AutoBots Operate</h2>
+      <p class="section-desc">Every request enters through Bumblebee, gets logged in Jira, then Optimus Prime routes it to the right specialist based on ticket type — with owner approval at every step.</p>
+    </div>
+
+    <!-- TOP ROW: Bumblebee → JIRA → Optimus Prime -->
+    <div class="workflow-top">
+
+      <div class="workflow-node">
+        <div class="workflow-hex gold">🐝</div>
+        <div class="workflow-name">Bumblebee</div>
+        <div class="workflow-name-sub">Ticket Creator</div>
+      </div>
+
+      <div class="wf-arrow-h"></div>
+
+      <div class="workflow-jira">
+        <div class="workflow-jira-box">
+          <span class="workflow-jira-icon">📋</span>
+        </div>
+        <div class="workflow-name">Jira</div>
+        <div class="workflow-name-sub">DOJO Project</div>
+      </div>
+
+      <div class="wf-arrow-h"></div>
+
+      <div class="workflow-node">
+        <div class="workflow-hex gold">🤖</div>
+        <div class="workflow-name">Optimus Prime</div>
+        <div class="workflow-name-sub">Orchestrator</div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR: vertical line down from Optimus Prime with label -->
+    <div style="display: flex; flex-direction: column; align-items: center; margin: 0 auto;">
+      <div class="wf-line-v"></div>
+      <div class="wf-label-route">Routes by Ticket Type</div>
+      <div class="wf-line-v"></div>
+    </div>
+
+    <!-- BOTTOM ROW: 4 specialist agents with branch lines -->
+    <div style="position: relative; max-width: 1100px; margin: 0 auto;">
+      <!-- horizontal spanning bar -->
+      <div class="wf-h-bar"></div>
+
+      <div class="workflow-bottom">
+
+        <div class="workflow-branch">
+          <div class="wf-branch-line"></div>
+          <div class="workflow-node">
+            <div class="workflow-hex">⚡</div>
+            <div class="workflow-name">Jazz</div>
+            <div class="workflow-name-sub">DevOps Engineer</div>
+          </div>
+          <div class="wf-branch-label">AWS · IAM · Cost<br>GitHub · Daily Ops</div>
+        </div>
+
+        <div class="workflow-branch">
+          <div class="wf-branch-line"></div>
+          <div class="workflow-node">
+            <div class="workflow-hex">🔧</div>
+            <div class="workflow-name">Wheeljack</div>
+            <div class="workflow-name-sub">Platform Engineer</div>
+          </div>
+          <div class="wf-branch-label">Terraform · K8s<br>IaC · CDK · Cloud</div>
+        </div>
+
+        <div class="workflow-branch">
+          <div class="wf-branch-line"></div>
+          <div class="workflow-node">
+            <div class="workflow-hex">🛡️</div>
+            <div class="workflow-name">Ironhide</div>
+            <div class="workflow-name-sub">Principal SRE</div>
+          </div>
+          <div class="wf-branch-label">Alerts · Incidents<br>SLO · Observability</div>
+        </div>
+
+        <div class="workflow-branch">
+          <div class="wf-branch-line"></div>
+          <div class="workflow-node">
+            <div class="workflow-hex">⭐</div>
+            <div class="workflow-name">Sentinel Prime</div>
+            <div class="workflow-name-sub">Architect</div>
+          </div>
+          <div class="wf-branch-label">RFC · ADR<br>Design · Strategy</div>
+        </div>
+
+      </div>
+    </div>
+
+    <p style="text-align: center; font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ash); margin-top: 64px;">
+      All actions require owner approval &mdash; zero silent executions
+    </p>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- AGENTS -->
+  <section class="agents-section" id="agents">
+    <div class="agents-header">
+      <div class="section-label">The Team</div>
+      <h2 class="section-title">Meet the AutoBots</h2>
+      <p class="section-desc">Six specialized AI agents, each mastering their domain — together forming an unstoppable DevOps force.</p>
+    </div>
+
+    <div class="agents-grid">
+
+      <!-- BUMBLEBEE -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">01 / Ticket Creator</div>
+          <div class="agent-sla">SLA: 60s</div>
+        </div>
+        <span class="agent-emoji">🐝</span>
+        <div class="agent-name">Bumblebee</div>
+        <div class="agent-title">Entry Point &amp; Ticket Creator</div>
+        <p class="agent-desc">First on the ground. Transforms every raw request — from Slack, webhooks, or alerts — into a structured Jira ticket. Classifies, prioritizes, and enriches before handing off to Optimus Prime. Nothing moves without owner sign-off.</p>
+        <div class="agent-tags">
+          <span class="tag">DevOps</span>
+          <span class="tag">IaC</span>
+          <span class="tag">Monitoring</span>
+          <span class="tag">Architecture</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">Jira</span>
+            <span class="tool-chip">Plane API</span>
+            <span class="tool-chip">Slack</span>
+            <span class="tool-chip">Webhook Listener</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPTIMUS PRIME -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">02 / Orchestrator</div>
+          <div class="agent-sla">SLA: 30s</div>
+        </div>
+        <span class="agent-emoji">🤖</span>
+        <div class="agent-name">Optimus Prime</div>
+        <div class="agent-title">Orchestrator &amp; Router</div>
+        <p class="agent-desc">The commander. Reads every Jira ticket from Bumblebee and routes it to exactly the right specialist based on type and intent. Proposes routing decisions — owner confirms before any Autobot is deployed.</p>
+        <div class="agent-tags">
+          <span class="tag">Routing</span>
+          <span class="tag">Classification</span>
+          <span class="tag">Coordination</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">Jira API</span>
+            <span class="tool-chip">Claude API</span>
+            <span class="tool-chip">Slack</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- JAZZ -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">03 / Principal DevOps Engineer</div>
+          <div class="agent-sla">SLA: 2h / 15m P0</div>
+        </div>
+        <span class="agent-emoji">⚡</span>
+        <div class="agent-name">Jazz</div>
+        <div class="agent-title">Principal DevOps Engineer</div>
+        <p class="agent-desc">Cool under pressure and built for speed. Handles all daily operational asks — AWS access, cost reports, GitHub repos, IAM queries. If it's ops, Jazz closes it fast. Model: Haiku 4.5.</p>
+        <div class="agent-tags">
+          <span class="tag">AWS</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">IAM</span>
+          <span class="tag">Cost</span>
+          <span class="tag">Daily Ops</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">AWS CLI</span>
+            <span class="tool-chip">Boto3</span>
+            <span class="tool-chip">GitHub API</span>
+            <span class="tool-chip">Cost Explorer</span>
+            <span class="tool-chip">SSM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHEELJACK -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">04 / Principal Platform Engineer</div>
+          <div class="agent-sla">SLA: 4h / 24h</div>
+        </div>
+        <span class="agent-emoji">🔧</span>
+        <div class="agent-name">Wheeljack</div>
+        <div class="agent-title">Principal Platform Engineer</div>
+        <p class="agent-desc">The engineer's engineer. Elite IaC specialist who provisions and manages cloud infrastructure with precision. Enforces Terraform best practices, module reuse, and state hygiene across AWS, GCP, and Azure. Model: Ollama Gemma4:27b (local).</p>
+        <div class="agent-tags">
+          <span class="tag">Terraform</span>
+          <span class="tag">K8s</span>
+          <span class="tag">IaC</span>
+          <span class="tag">CDK</span>
+          <span class="tag">Multi-Cloud</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">Terraform</span>
+            <span class="tool-chip">Pulumi</span>
+            <span class="tool-chip">Kubernetes API</span>
+            <span class="tool-chip">GitHub API</span>
+            <span class="tool-chip">Plane API</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- IRONHIDE -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">05 / Principal SRE</div>
+          <div class="agent-sla">SLA: 5m P0</div>
+        </div>
+        <span class="agent-emoji">🛡️</span>
+        <div class="agent-name">Ironhide</div>
+        <div class="agent-title">Principal SRE</div>
+        <p class="agent-desc">Always watching, never sleeping. Owns reliability, observability, and incident response. Direct Grafana MCP access to live infrastructure. Triages alerts, leads war rooms, enforces SLOs. Model: Sonnet 4.6.</p>
+        <div class="agent-tags">
+          <span class="tag">Incidents</span>
+          <span class="tag">SLO</span>
+          <span class="tag">Alerts</span>
+          <span class="tag">Monitoring</span>
+          <span class="tag">Post-Mortem</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">Grafana MCP</span>
+            <span class="tool-chip">PagerDuty</span>
+            <span class="tool-chip">Prometheus</span>
+            <span class="tool-chip">CloudWatch</span>
+            <span class="tool-chip">Loki</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SENTINEL PRIME -->
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-number">06 / Distinguished Architect</div>
+          <div class="agent-sla">SLA: 24h / 5d</div>
+        </div>
+        <span class="agent-emoji">⭐</span>
+        <div class="agent-name">Sentinel Prime</div>
+        <div class="agent-title">Distinguished Architect</div>
+        <p class="agent-desc">The final word. Called only when decisions shape the future of the platform. No noise — only signal. Evaluates RFCs, defines cross-cutting patterns, sets technology strategy. Model: Opus 4.6.</p>
+        <div class="agent-tags">
+          <span class="tag">RFC</span>
+          <span class="tag">ADR</span>
+          <span class="tag">Architecture</span>
+          <span class="tag">Strategy</span>
+        </div>
+        <div class="agent-tools">
+          <div class="agent-tools-label">Integrations</div>
+          <div class="agent-tools-list">
+            <span class="tool-chip">Confluence</span>
+            <span class="tool-chip">Notion</span>
+            <span class="tool-chip">Claude API</span>
+            <span class="tool-chip">Excalidraw</span>
+            <span class="tool-chip">GitHub API</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- ROUTING TABLE -->
+  <section class="routing-section" id="routing">
+    <div style="max-width: 900px; margin: 0 auto;">
+      <div class="section-label">Optimus Prime Routing Logic</div>
+      <h2 class="section-title">Intelligent Dispatch</h2>
+      <p class="section-desc">Optimus Prime classifies every Jira ticket by keyword and intent, then routes it to exactly the right Autobot — no guesswork, no delay.</p>
+
+      <table class="routing-table">
+        <thead>
+          <tr>
+            <th>Ticket Type / Keywords</th>
+            <th>Routed To</th>
+            <th>Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>cost, repo, access, AWS, daily ops, IAM, GitHub</td>
+            <td>
+              <div class="routing-agent">
+                <span class="routing-agent-emoji">⚡</span>
+                <span class="routing-agent-name">Jazz</span>
+              </div>
+            </td>
+            <td><span class="routing-model">Haiku 4.5</span></td>
+          </tr>
+          <tr>
+            <td>Terraform, IaC, cloud resources, CDK, Kubernetes, provisioning</td>
+            <td>
+              <div class="routing-agent">
+                <span class="routing-agent-emoji">🔧</span>
+                <span class="routing-agent-name">Wheeljack</span>
+              </div>
+            </td>
+            <td><span class="routing-model">Gemma4:27b</span><span class="routing-model-provider">Ollama · Local</span></td>
+          </tr>
+          <tr>
+            <td>alerts, uptime, logs, SLO, SLA, incident, outage, observability</td>
+            <td>
+              <div class="routing-agent">
+                <span class="routing-agent-emoji">🛡️</span>
+                <span class="routing-agent-name">Ironhide</span>
+              </div>
+            </td>
+            <td><span class="routing-model">Sonnet 4.6</span></td>
+          </tr>
+          <tr>
+            <td>design, tradeoffs, architecture, RFC, ADR, tech strategy</td>
+            <td>
+              <div class="routing-agent">
+                <span class="routing-agent-emoji">⭐</span>
+                <span class="routing-agent-name">Sentinel Prime</span>
+              </div>
+            </td>
+            <td><span class="routing-model">Opus 4.6</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="context-switch-note">
+        <span class="context-switch-icon">⚙️</span>
+        <div>
+          <div class="context-switch-title">Models are swappable — built for context switching</div>
+          <div class="context-switch-desc">Each agent's model can be hot-swapped independently. Run Ollama locally for IaC tasks, cloud APIs for production incidents, or point any agent at a different provider without touching the routing logic. Match compute cost to task complexity.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- GUARDRAILS -->
+  <section class="guardrails-section" id="guardrails">
+    <div class="section-label">Safety Protocol</div>
+    <h2 class="section-title">Built-In Guardrails</h2>
+    <p class="section-desc" style="margin: 0 auto; text-align: center;">Every agent operates with owner-first controls. Zero silent actions. Every decision requires explicit approval.</p>
+
+    <div class="guardrails-grid">
+      <div class="guardrail-card">
+        <span class="guardrail-icon">✅</span>
+        <div class="guardrail-title">Owner Approval First</div>
+        <p class="guardrail-desc">No agent executes any action without the owner's explicit <code style="color: var(--gold);">✅ approve</code> in Slack.</p>
+      </div>
+      <div class="guardrail-card">
+        <span class="guardrail-icon">🔒</span>
+        <div class="guardrail-title">Zero Silent Actions</div>
+        <p class="guardrail-desc">Every proposed action is previewed to the owner before execution — no surprises, ever.</p>
+      </div>
+      <div class="guardrail-card">
+        <span class="guardrail-icon">📋</span>
+        <div class="guardrail-title">Full Audit Trail</div>
+        <p class="guardrail-desc">All actions logged with timestamp, owner name, and ticket reference for complete accountability.</p>
+      </div>
+      <div class="guardrail-card">
+        <span class="guardrail-icon">⚠️</span>
+        <div class="guardrail-title">P0 Exception Protocol</div>
+        <p class="guardrail-desc">During live outages, Ironhide may run read-only diagnostics and retries owner contact every 2 minutes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIGGERS -->
+  <section class="trigger-section">
+    <div class="section-label">Activation Keywords</div>
+    <h2 class="section-title">Summon Your Agent</h2>
+    <div class="triggers-grid">
+      <div class="trigger-pill">@Bumblebee</div>
+      <div class="trigger-pill">@OptimusPrime</div>
+      <div class="trigger-pill trigger-ghost">@Jazz</div>
+      <div class="trigger-pill trigger-ghost">@Wheeljack</div>
+      <div class="trigger-pill trigger-ghost">@Ironhide</div>
+      <div class="trigger-pill trigger-ghost">@SentinelPrime</div>
+    </div>
+    <p style="margin-top: 32px; font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ash);">
+      Triggered via Slack &bull; Jira DOJO &bull; Webhook
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">Devops-Dojo <span>AutoBots</span></div>
+    <div class="footer-copy">Agentic AI Team &mdash; DevOps &amp; Infrastructure</div>
+    <div class="footer-links">
+      <a href="#agents">Agents</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#routing">Routing</a>
+    </div>
+  </footer>
+
+</body>
+</html>
